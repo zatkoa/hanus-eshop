@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:15.6-alpine3.19
+    container_name: medusav2-postgres
+    # NOTE: User postgres is used to avoid the following error:
+    # "FATAL: role "root" does not exist docker postgres"
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medusav2-example
+      PGPORT: 5432
+    volumes:
+      - type: volume
+        source: medusav2-postgres--data
+        target: /var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+
+  # DB connection URL:
+  # postgres://postgres:postgres@phi--rz--postgres:5432/rz
+  # Browser URL:
+  # http://localhost:8081/?pgsql=phi--rz--postgres%3A5432&username=postgres&db=rz&ns=public&select=keys
+  # adminer:
+  #   image: adminer:4.8.1-standalone
+  #   container_name: phi--rz--adminer
+  #   ports:
+  #     - host_ip: 0.0.0.0
+  #       published: 8081 # host
+  #       target: 8080 # container
+  #       protocol: tcp
+  #       mode: host
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+
+volumes:
+  medusav2-postgres--data:
+    name: medusav2-postgres--data
+
+networks:
+  default:
+    name: medusa--network--default
