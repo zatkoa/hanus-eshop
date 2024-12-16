@@ -22,10 +22,15 @@ export async function GET(
 ): Promise<void> {
   const query = req.scope.resolve("query");
 
-  const { data: essentialOils } = await query.graph({
+  const { data: essentialOils, metadata } = await query.graph({
     entity: "essential_oil",
-    fields: ["*"],
+    ...req.remoteQueryConfig,
   });
 
-  res.json({ essentialOils });
+  res.json({
+    essentialOils,
+    count: metadata?.count,
+    limit: metadata?.take,
+    offset: metadata?.skip,
+  });
 }
